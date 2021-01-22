@@ -1,4 +1,5 @@
 import pygame, sys
+import random
 
 pygame.init()
 
@@ -26,7 +27,31 @@ oponent = pygame.Rect(10, height/2-70,10,140)
 
 def playerAnimation():
     player.y+=playerSpeed
-    
+    if player.top <=0:
+        player.top =0
+    if player.bottom >= height:
+        player.bottom = height
+
+
+def oponentAnimation():
+    if oponent.top < ball.y:
+        oponent.y +=7
+    if oponent.bottom > ball.y:
+        oponent.y -=7
+
+    if oponent.top<=0:
+        oponent.y =0
+
+    if oponent.bottom >= height:
+        oponent.y = height
+
+
+def ballRestart():
+    global ballSpeedX, ballSpeedY
+    ball.center = (width/2, height/2)
+    ballSpeedY *= random.choice((1,-1))
+    ballSpeedX *= random.choice((1,-1))
+
 
 
 
@@ -41,7 +66,8 @@ def drawRectangles():
 def ballSpeed():
     global ballSpeedX, ballSpeedY
     if ball.x >= width or ball.x <=0:
-        ballSpeedX *=-1
+        #ballSpeedX *=-1
+        ballRestart()
 
     if ball.y>=height or ball.y <=0:
         ballSpeedY *=-1
@@ -86,6 +112,7 @@ while True:
     ballSpeed()
     checkCollision()
     playerAnimation()
+    oponentAnimation()
     pygame.draw.aaline(screen, (200,200,200), (width/2, 0), (width/2, height))
     pygame.display.update()
     clock.tick(60)
