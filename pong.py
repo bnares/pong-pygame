@@ -14,16 +14,24 @@ pygame.display.set_caption("Pong")
 
 bg_color = pygame.Color("grey12")
 
-#game rectangles
+#basic values
 
 ballSpeedX = 7
 ballSpeedY = 7
 playerSpeed = 0
+playerScore = 0
+oponentScore =0
 
-
+#game rectangles
 ball = pygame.Rect(width/2 - 15, height/2 -15,30,30)
 player = pygame.Rect(width-20, height/2 - 70,10,140)
 oponent = pygame.Rect(10, height/2-70,10,140)
+
+
+def displayResult():
+    game_font = pygame.font.Font("freesansbold.ttf",32)
+    playerText = game_font.render(f"{oponentScore} : {playerScore}", True, (200,200,200))
+    screen.blit(playerText, (width/2-33, height/2))
 
 def playerAnimation():
     player.y+=playerSpeed
@@ -47,10 +55,22 @@ def oponentAnimation():
 
 
 def ballRestart():
-    global ballSpeedX, ballSpeedY
-    ball.center = (width/2, height/2)
-    ballSpeedY *= random.choice((1,-1))
-    ballSpeedX *= random.choice((1,-1))
+    global ballSpeedX, ballSpeedY, scoreTimer
+
+    currentTime = pygame.time.get_ticks()
+    ball.center = (width / 2, height / 2)
+
+    if currentTime - scoreTimer < 2100:
+        ballSpeedX, ballSpeedY = 0,0
+
+    else:
+        ballSpeedY = 7 * random.choice((1, -1))
+        ballSpeedX = 7 * random.choice((1, -1))
+        scoreTimer = None
+
+
+
+
 
 
 
@@ -64,10 +84,17 @@ def drawRectangles():
 
 
 def ballSpeed():
+    global  oponentScore, playerScore, scoreTimer
     global ballSpeedX, ballSpeedY
     if ball.x >= width or ball.x <=0:
+        if ball.x >=width:
+           oponentScore+=1
+           scoreTimer = pygame.time.get_ticks()
+        if ball.x <=0:
+            playerScore+=1
+            scoreTimer = pygame.time.get_ticks()
         #ballSpeedX *=-1
-        ballRestart()
+        #ballRestart()
 
     if ball.y>=height or ball.y <=0:
         ballSpeedY *=-1
@@ -83,7 +110,9 @@ def checkCollision():
         print("ball hit the front of the desk")
 
 
+#score timer
 
+scoreTimer = True
 
 while True:
     for event in pygame.event.get():
@@ -112,7 +141,10 @@ while True:
     ballSpeed()
     checkCollision()
     playerAnimation()
+    if scoreTimer:
+        ballRestart()
     oponentAnimation()
     pygame.draw.aaline(screen, (200,200,200), (width/2, 0), (width/2, height))
+    displayResult()
     pygame.display.update()
     clock.tick(60)
